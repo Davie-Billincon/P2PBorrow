@@ -1,0 +1,125 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="static/text/html; charset=UTF-8">
+<title>我要投资</title>
+
+<!-- jquerys -->
+	<script type="text/javascript" src="static/jquery/jquery.js"></script>
+
+<!--bootstrap -->
+	<link rel="stylesheet" type="text/css" href="static/bootstrap/css/bootstrap.css">
+	<script type="text/javascript" src="static/bootstrap/js/bootstrap.js"></script>
+	
+<!-- layer插件 -->
+	<script type="text/javascript" src="static/layer/layer.js"></script>
+
+<!-- 字体样式 -->	
+	<style type="text/css">	 body {font-family : 微软雅黑;} </style>
+	
+<script type="text/javascript">
+$(document).ready(function(){
+		
+});
+
+function searchSome(searchType,searchValue){
+    if (searchType == '' || searchValue == ''){return}
+        $("#searchType").attr("value",""+searchType)
+        $("#searchValue").attr("value",""+searchValue)
+        $("#form").submit()
+	}
+
+</script>
+</head>
+
+<body>
+<div class="container" >
+<div class="row">
+<div class="col-xs-1"></div>
+<div class="col-xs-11" style="margin:50px">
+<!---------------------------------------华丽的容器分割线---------------------------------------->		
+		
+	<div class="col-xs-6">
+			     <img 	src="static/shouye1.jpg"
+			     		alt="标题" 
+			     		class="img-responsive" 
+			     >
+	</div>	
+
+	<div class="col-xs-6">
+		<a class='btn ' href='/showlendall' style="font-size:18px">我要投资</a>
+		<a class='btn ' href='/borrow' style="font-size:18px">我要借款</a>
+		<a class='btn ' href='/myinfo' style="font-size:18px">所有记录</a>
+		<a class='btn ' href='/returnMoney' style="font-size:18px">我要还款</a>
+        <a class='btn ' href='/back' style="font-size:18px">进入后台</a>
+        <a class='btn ' href='/logout' style="font-size:18px">退出登录</a>
+        <a class='btn ' href='/' style="font-size:18px">用户:{{ username }}</a>
+	</div>
+		
+	<div class="col-xs-12">
+			     <img 	src="static/lend1.jpg"
+			     		alt="标题" 
+			     		class="img-responsive" 
+			     >
+	</div>
+		
+	<div class="col-xs-12"  style="margin:10px"></div>
+
+	<div class="col-xs-6">
+		<h3  style="margin-bottom:20px">以还款期限为排序</h3>
+
+		<table  id="table" class="table table-striped table-bordered table-condensed table-hover">	
+			<tr >
+				<td>还贷时长/月</td>  <td>总还贷金额</td>    <td>利率波动范围</td>
+			</tr>
+
+            {% for item in order_duration%}
+                <tr onclick="searchSome('duration','{{ item['duration'] }}')">
+                    <td style="font-size:20px;color:red">
+                        <nobr>{{ item['duration'] }}</nobr>
+                    </td>
+                    <td>{{ item['total_need'] }}</td>
+                    <td>
+                        <nobr>{{ item['min_rate'] }}</nobr>% ~ <nobr>{{ item['max_rate'] }}</nobr>%
+                    </td>
+                </tr>
+            {% endfor %}
+
+		</table>
+	</div>
+
+	<div class="col-xs-6">
+		<h3  style="margin-bottom:20px">以还款利率为排序</h3>
+
+		<table  id="table" class="table table-striped table-bordered table-condensed table-hover">	
+			<tr >
+				<td>还款利率</td>  <td>总还贷金额</td>   <td>还款时长范围/月</td>
+			</tr>
+
+            {% for item in order_rate%}
+                <tr onclick="searchSome('return_rate','{{ item['return_rate'] }}')">
+                    <td style="font-size:20px;color:red">
+                        <nobr>{{ item['return_rate'] }}</nobr>%
+                    </td>
+                    <td>{{ item['total_need'] }}</td>
+                    <td>
+                        <nobr>{{ item['min_duration'] }}</nobr> ~ <nobr>{{ item['max_duration'] }}</nobr>
+                    </td>
+                </tr>
+            {% endfor %}
+
+		</table>
+	</div>	
+
+    <form id="form" style="display: none" method="post" action="" >
+		<input id="searchType" name="searchType" type="text" placeholder=""  value="" >
+        <input id="searchValue" name="searchValue" type="text" placeholder=""  value="" >
+    </form>
+		
+
+<!---------------------------------------华丽的容器分割线---------------------------------------->				
+</div>
+</div>
+</div>
+
+</body>
+</html>

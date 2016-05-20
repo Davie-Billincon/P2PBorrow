@@ -1,0 +1,125 @@
+.well {
+	border-radius: 2px;
+	background-clip: padding-box;
+	box-shadow: 0 10px 10px  #918F81;
+	background-color: #fbfbfb;
+	border: 0;
+	color: #262626;
+	position: relative;
+	margin-bottom: 30px;
+	min-height: 0;
+}
+
+.well.with-header {
+	padding-top: 60px;
+}
+
+.well .header {
+	position: absolute;
+	top: 0;
+	right: 0;
+	left: 0;
+	padding: 17px;
+	text-align: left;
+	border-radius: 2px 2px 0 0;
+	font-size:17px;
+	font-weight:500;
+	padding-bottom: 12px;
+    padding-top: 12px;
+}
+
+.well .header[class*="bg-"] {
+color: #fff;
+border-bottom: 0;
+}
+
+.bg-darkorange {
+	background-color: #ed4e2a!important;
+}
+.bg-work{
+	background-color: #279DC4!important;
+}
+.bg-infro{
+	background-color: #BA979B!important;
+}
+.bg-contact{
+	background-color: #D9534F!important;
+}
+.bg-leave{
+	background-color: #B2596B!important;
+}
+.bg-message{
+	background-color: #A4C950!important;
+}
+.bg-expt{
+	background-color: #BA979B!important;
+}
+.bg-reim{
+	background-color: #BA979B!important;
+}
+.bg-meet{
+	background-color: #BA979B!important;
+}
+.bg-notice{
+	background-color: #BA979B!important;
+}
+.bg-system{
+	background-color: #BA979B!important;
+}
+.bg-car{
+	background-color: #BA979B!important;
+}
+
+
+
+
+
+
+
+
+/*关于侧滑的样式*/
+		body {font-family : 微软雅黑;}
+		.gn-menu-main, .gn-menu-main ul {margin: 0;padding: 0;list-style: none;text-transform: none;font-weight: 900;font-family: 'Lato', Arial, sans-serif;line-height: 60px;
+			background: #A87B63;	/*基本背景*/
+			color: #A87B63;}
+		.gn-menu-wrapper {position: fixed;top: 60px;bottom: 0;left: 0;overflow: hidden;width: 60px;border-top: 1px solid #c6d0da;-webkit-transform: translateX(-60px);
+			-moz-transform: translateX(-60px);transform: translateX(-60px);-webkit-transition: -webkit-transform 0.3s, width 0.3s;
+			-moz-transition: -moz-transform 0.3s, width 0.3s;transition: transform 0.3s, width 0.3s;
+			background: #A87B63;}
+		.gn-menu-main a {display: block;height: 100%;text-decoration: none;cursor: pointer;
+			color: white;}			/*字体色*/
+		.no-touch .gn-menu-main a:hover, .no-touch .gn-menu li.gn-search-item:hover, .no-touch .gn-menu li.gn-search-item:hover a {
+			background: #C7D6DB;	/*悬停色*/
+			color: #A87B63;}
+			
+		.gn-search::-webkit-input-placeholder {
+			color: white
+		}
+		.no-touch .gn-menu li.gn-search-item:hover .gn-search::-webkit-input-placeholder {
+				color: #A87B63
+		}
+		.no-touch .gn-menu li.gn-search-item:hover input.gn-search {
+				color: #A87B63
+		}
+		input.gn-search {position: relative;z-index: 10;padding-left: 60px;outline: none;border: none;background: transparent;color: #A87B63;font-family: 'Lato', Arial, sans-serif;cursor: pointer;
+			font-weight: 900;
+		}
+		
+		.gn-menu-main a.gn-icon-search {
+			position: absolute;
+			top: 21px;
+			left: 0;
+			height: 39px;
+			}
+		.gn-menu-main a.myNull {
+			position: absolute;
+			width: 60px;
+			top: 0;
+			left: 0;
+			height: 21px;
+			}
+/*^^^^^^^^^^关于侧滑的样式^^^^^^^^^*/
+
+
+
+

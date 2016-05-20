@@ -1,0 +1,164 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="static/text/html; charset=UTF-8">
+<title>我要投资</title>
+
+<!-- jquerys -->
+	<script type="text/javascript" src="static/jquery/jquery.js"></script>
+
+<!--bootstrap -->
+	<link rel="stylesheet" type="text/css" href="static/bootstrap/css/bootstrap.css">
+	<script type="text/javascript" src="static/bootstrap/js/bootstrap.js"></script>
+	
+<!-- layer插件 -->
+	<script type="text/javascript" src="static/layer/layer.js"></script>
+
+<!-- 字体样式 -->	
+	<style type="text/css">	 body {font-family : 微软雅黑;} </style>
+	
+<script type="text/javascript">
+$(document).ready(function(){
+		
+});
+
+function lend(duration,rate,total_money){
+    if (duration == '' || rate == '' ){return}
+    $("#lendContent").attr("style","background-color:#F5F5F5")
+    $("#duration").attr("value",""+duration)
+    $("#lend_rate").attr("value",""+rate)
+    $("#total_money").attr("value",""+total_money)
+}
+
+function checkMoney(){
+    lend_money = document.getElementById("lend_money").value
+    total_money = document.getElementById("total_money").value
+    if( lend_money == ''){
+        layer.msg("填写投资金额")
+        return
+    }
+    if( lend_money > total_money ){
+        layer.msg("投资大于现有需求")
+        return
+    }
+     $("#form").submit()
+}
+
+</script>
+</head>
+
+<body>
+<div class="container" >
+<div class="row">
+<div class="col-xs-1"></div>
+<div class="col-xs-11" style="margin:50px">
+<!---------------------------------------华丽的容器分割线---------------------------------------->		
+		
+	<div class="col-xs-6">
+			     <img 	src="static/shouye1.jpg"
+			     		alt="标题" 
+			     		class="img-responsive" 
+			     >
+	</div>	
+
+	<div class="col-xs-6">
+		<a class='btn ' href='/showlendall' style="font-size:18px">我要投资</a>
+		<a class='btn ' href='/borrow' style="font-size:18px">我要借款</a>
+		<a class='btn ' href='/myinfo' style="font-size:18px">所有记录</a>
+		<a class='btn ' href='/returnMoney' style="font-size:18px">我要还款</a>
+        <a class='btn ' href='/back' style="font-size:18px">进入后台</a>
+        <a class='btn ' href='/logout' style="font-size:18px">退出登录</a>
+        <a class='btn ' href='/' style="font-size:18px">用户:{{ username }}</a>
+	</div>
+		
+	<div class="col-xs-12">
+			     <img 	src="static/lend1.jpg"
+			     		alt="标题" 
+			     		class="img-responsive" 
+			     >
+	</div>
+		
+	<div class="col-xs-12"  style="margin:10px"></div>
+
+    <div class="col-xs-3"></div>
+
+	<div class="col-xs-6">
+		<h3  style="margin-bottom:20px">查询结果</h3>
+
+		<table  id="table" class="table table-striped table-bordered table-condensed table-hover">	
+			<tr >
+				<td>总金额</td> <td>还贷时长/月</td>  <td>回报率</td>
+			</tr>
+
+            {% for item in searchResult %}
+                <tr onclick="lend('{{ item['duration'] }}','{{ item['return_rate'] }}','{{ item['total_need'] }}')">
+                    <td style="font-size:20px;color:red">
+                        <nobr>{{ item['total_need'] }}</nobr>
+                    </td>
+                    <td>{{ item['duration'] }}</td>
+                    <td>
+                        <nobr>{{ item['return_rate'] }}</nobr>
+                    </td>
+                </tr>
+            {% endfor %}
+
+		</table>
+	</div>
+
+    <div class="col-xs-12" style="background-color:#F5F5F5;display:none" id="lendContent" >
+
+		<table id="" class="table"  frame="void">
+			<tbody>
+				<tr style="height:70px">
+					<td colspan="2" align="center"><h3 id="returnMSG">开始投资</h3></td>
+				</tr>
+
+				<form id="form" class="form-inline" method="post" action="/lend">
+
+                    <tr style="height:50px">
+						<td >该项目已有需求：</td>
+						<td>
+							<input id="total_money" type="text"  name="total_money" value="" readonly>
+						</td>
+					</tr>
+
+					<tr style="height:50px">
+						<td >投资项目时长：</td>
+						<td>
+							<input id="duration" type="text"  name="duration" value="" readonly>
+						</td>
+					</tr>
+
+					<tr style="height:50px">
+						<td >投资项目利率：</td>
+						<td>
+							<input type="text" value="" name="lend_rate" id="lend_rate" readonly>
+						</td>
+					</tr>
+
+                    <tr style="height:50px">
+						<td >投资金额：</td>
+						<td>
+							<input type="text" value="" name="lend_money" id="lend_money">
+						</td>
+					</tr>
+
+					<tr>
+						<td colspan="2">
+							<a   onclick="checkMoney()" class='btn btn-info btn-block ' > 开始投资 </a>
+						</td>
+					</tr>
+
+				</form>
+			</tbody>
+		</table>
+
+	</div>
+		
+
+<!---------------------------------------华丽的容器分割线---------------------------------------->				
+</div>
+</div>
+</div>
+
+</body>
+</html>
