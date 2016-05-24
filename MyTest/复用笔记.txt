@@ -1,0 +1,110 @@
+drop table users;
+drop table all_borrow;
+drop table users_detail;
+
+
+
+users_detail
+user_id , username , realname , identity_id , phone , marry_status_id , edu_status_id 	, work_status_id , credit_card 	, salary , house_loan , spare_money , loan_repay 
+
+
+
+borrow
+borrow_id,user_id,username,borrow_money,return_rate,return_money,borrow_date,duration,
+duetime_phase,recent_duetime,recent_duemoney,has_return,bad_times
+
+
+return_record
+borrow_id,ahead_days,money_differ,duemoney, actual_return
+
+
+lend
+lend_id,user_id,username,lend_money,lend_rate,back_money,lend_date,duration,return_date,isReturn
+
+
+cur_all.execute(sql)
+values = cur_all.fetchall()
+conn_all.commit()
+
+
+conn_user = sqlite3.connect("database/%s.db" %(username))
+cur_user = conn_user.cursor()
+cur_user.execute(sql)
+values = cur_user.fetchall()
+conn_user.commit()
+conn_user.close
+
+results = []
+	for item in values:
+		result = {}
+		result['borrow_id'] = item[0]
+		results.append(result)
+return results
+
+
+
+sql = """
+		insert into users
+			  (username,)
+		values('%s',)
+		""" %(username,)
+sql = """
+		DELETE FROM users
+		WHERE username == %s
+		""" %(username)
+sql = """
+    		UPDATE all_borrow
+    		SET duetime_phase = '%s',
+    		WHERE  borrow_id = '%s'
+        """ % (username)
+sql = """
+		SELECT credit_limit FROM users
+		WHERE username == '%s';
+    """ % (username)	
+
+
+
+username = str(escape(session['username']))
+user_id = str(getUerID(username))
+return render_template('borrow.html',credit = credit)
+= str(request.form[''])
+
+@app.route("/back",methods=['GET','POST'])
+def back():
+	print "进入后台管理"
+	username = str(escape(session['username']))
+	print "    当前用户为: %s" %(username)
+	if request.method=='GET':
+		print "    后台页面展示"
+		money = str(getMoney(username))
+		return render_template('back.html',
+						   money = money
+						   )
+	else:
+		print "    后台修改提交"
+		money = str(request.form['money'])
+		return redirect("/back")
+
+<h4 style=""> 用户名:{{ username }}</h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

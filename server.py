@@ -1,4 +1,5 @@
 #coding:utf-8
+
 from flask import session
 from flask import escape
 from flask import Flask
@@ -6,17 +7,26 @@ from flask import request
 from flask import render_template
 from flask import redirect
 from flask import url_for
+from wtforms import Form , StringField ,PasswordField , validators
 
 from service import  *
 
+
 app=Flask(__name__)
 
-from wtforms import Form , StringField ,PasswordField , validators
+
+
+
+# 写死的用户名(系统加载之初,就自动添加管理员账户)
+admin = "admin"
+if ( not registerCheck(admin) ):
+	addUser(admin,admin)
+	addDetail(getUerID(admin),admin,admin,350301,186,2,3,3,3424,3000,7000,200,300)
+	countCredit(admin)
 
 class LoginForm(Form):
 	username = StringField("username",[validators.Required()])
 	password = PasswordField("password",[validators.Required()])
-
 form = LoginForm()
 
 # 访问起始点,根目录（根据session判断是否登录过，来重定向请求）
@@ -127,6 +137,48 @@ def detail():
 		return redirect("/")
 	print "/detail:    展示注册页面,重定向->detail.html"
 	return render_template('detail.html')
+
+# 展示个人信息 & 修改个人信息
+@app.route("/showDetail",methods=['GET','POST'])
+def showDetail():
+	print "/showDetail:详情展示"
+	username = str(escape(session['username']))
+	print "/showDetail:    当前用户为: %s" % (username)
+	if request.method=='GET':
+		result = getAllDetail(username)
+		return render_template('showDetail.html', result = result)
+	else:
+		print "/showDetail:    处理详情修改表单"
+		realname = request.form['realname']
+		IDnumber = request.form['IDnumber']
+		phone = request.form['phone']
+		MarriageStatusId = request.form['MarriageStatusId']
+		EducationId = request.form['EducationId']
+		UserType = request.form['UserType']
+		creditnumber = request.form['creditnumber']
+		salary = request.form['salary']
+		loan = request.form['loan']
+		AverageSalarys = request.form['AverageSalarys']
+		AverageSalary = request.form['AverageSalary']
+		# 字段转译
+		username = escape(session['username'])
+		user_id = getUerID(username)
+		realname = realname
+		identity_id = IDnumber
+		phone = phone
+		marry_status_id = MarriageStatusId
+		edu_status_id = EducationId
+		work_status_id = UserType
+		credit_card = creditnumber
+		salary = salary
+		house_loan = loan
+		spare_money = AverageSalarys
+		loan_repay = AverageSalary
+		print "->数据库添加详情"
+		changeDetail(user_id, username, realname, identity_id,
+				  phone, marry_status_id, edu_status_id, work_status_id,
+				  credit_card, salary, house_loan, spare_money, loan_repay)
+		return redirect("/showDetail")
 
 # 借款模块
 @app.route("/borrow",methods=['GET','POST'])
@@ -278,20 +330,24 @@ def back():
 	print "/back:    当前用户为: %s" %(username)
 	if request.method=='GET':
 		print "/back:    后台页面展示"
+		if (username != admin):
+			print "/back:    用户不是admin用户,重定向->backerror.html"
+			return render_template('backerror.html',username = username)
 		print "->数据库查询一系列数据"
-		money = str(getMoney(username))
 		print "/back:    后台数据查询完毕,重定向->back.html"
-		return render_template('back.html',
-						   money = money,
-						   username = username
-						   )
+		return render_template('back.html')
 	else:
 		print "/back:    处理后台修改提交"
+		user_change = str(request.form['user_change'])
 		money = str(request.form['money'])
 		print "->数据库插入修改内容"
-		changeMoney(money,username)
-		print "/back:    插入完毕,重定向到自己->/back"
-		return redirect("/back")
+		changeMoney(money,user_change)
+		print "/back:    插入完毕,重定向->/myinfo"
+		return redirect("/myinfo")
+
+
+
+
 
 
 

@@ -7,8 +7,7 @@ import datetime
 
 import random
 
-import os
-import os.path
+import service
 
 # str 转精度
 def strToFloat(str):
@@ -212,6 +211,47 @@ def addDetail(user_id , username , realname , identity_id ,
 	conn_all.commit()
 	return
 
+#获取详情
+def getAllDetail(username):
+	sql = """
+			SELECT * FROM users_detail
+			WHERE username = '%s'
+		""" % (username)
+	cur_all.execute(sql)
+	values = cur_all.fetchone()
+	result = {}
+	result['realname'] = str(values[2])
+	result['identity_id'] = str(values[3])
+	result['phone'] = str(values[4])
+	result['marry_status_id'] = int(values[5])
+	result['edu_status_id'] = int(values[6])
+	result['work_status_id'] = int(values[7])
+	result['credit_card'] = str(values[8])
+	result['salary'] = str(values[9])
+	result['house_loan'] = str(values[10])
+	result['spare_money'] = str(values[11])
+	result['loan_repay'] = str(values[12])
+	return result
+
+# 添加详情
+def changeDetail(user_id , username , realname , identity_id ,
+			  phone , marry_status_id , edu_status_id , work_status_id ,
+			  credit_card , salary , house_loan , spare_money , loan_repay):
+	sql = """
+		UPDATE users_detail
+		SET	user_id = '%s', realname = '%s' , identity_id = '%s' ,
+			  phone = '%s' , marry_status_id = '%s' , edu_status_id = '%s', work_status_id = '%s' ,
+			  credit_card = '%s' , salary = '%s' , house_loan = '%s' , spare_money = '%s' , loan_repay = '%s'
+		WHERE username = '%s'
+	""" %(user_id , realname , identity_id ,
+			phone , marry_status_id , edu_status_id , work_status_id ,
+			credit_card , salary , house_loan , spare_money , loan_repay , username)
+	cur_all.execute(sql)
+	conn_all.commit()
+
+
+
+
 # 获取用户是否已经有详情了
 def detailCheck(username):
 	sql = """
@@ -262,6 +302,7 @@ def changeCredit(credit_limit,username):
 	return
 # 获取用户信用额度
 def getCredit(username):
+	service.changeCreditUseDeal()
 	sql = """
 		SELECT credit_limit FROM users
 		WHERE username == '%s';

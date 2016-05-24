@@ -68,21 +68,21 @@ function example() {
 						<tr style="height:50px">
 							<td >真实姓名：</td>
 							<td>
-								<input id="realname" name="realname" type="text" placeholder=""  value="" >
+								<input id="realname" name="realname" type="text" placeholder=""  value="{{ result["realname"] }}" >
 							</td>
 						</tr>
 						
 						<tr style="height:50px">
 							<td >身份证号：</td>
 							<td>
-								<input id="IDnumber" name="IDnumber" type="text" placeholder=""  value="" >
+								<input id="IDnumber" name="IDnumber" type="text" placeholder=""  value="{{ result["identity_id"] }}" >
 							</td>
 						</tr>
 
 						<tr style="height:50px">
 							<td >注册手机号：</td>
 							<td>
-								<input id="phone" name="phone" type="text" placeholder=""  value="" >
+								<input id="phone" name="phone" type="text" placeholder=""  value="{{ result["phone"] }}" >
 							</td>
 						</tr>
 
@@ -90,15 +90,15 @@ function example() {
 							<td >婚姻状况：</td>
 							<td>
 								<label for="jb1" class="c333">
-                                    <input name="MarriageStatusId" type="radio" value="1" id="jb1"   />未婚 
+                                    <input  {% if result["marry_status_id"] == 1 %} {{"checked"}} {% endif %} name="MarriageStatusId" type="radio" value="1" id="jb1" />未婚
                                 </label>
 
                                 <label for="jb2" class="c333">
-                                    <input name="MarriageStatusId" type="radio" value="2" id="jb2"  />已婚  
+                                    <input {% if result["marry_status_id"] == 2 %} {{"checked"}} {% endif %} name="MarriageStatusId" type="radio" value="2" id="jb2"  />已婚
                                 </label>
 
                                 <label for="jb3" class="c333">
-                                    <input name="MarriageStatusId" type="radio" value="3" id="jb3"   />离异
+                                    <input {% if result["marry_status_id"] == 3 %} {{"checked"}} {% endif %} name="MarriageStatusId" type="radio" value="3" id="jb3"   />离异
                                 </label>
 							</td>
 						</tr>
@@ -106,26 +106,18 @@ function example() {
 						<tr style="height:50px">
 							<td >学历：</td>
 							<td>
-								<!--<select  id="EducationId" name="EducationId"><option value="">请选择</option>-->
-									<!--<option value="1">研究生及以上</option>-->
-									<!--<option value="2">本科</option>-->
-									<!--<option value="3">大专</option>-->
-									<!--<option value="4">高中</option>-->
-									<!--<option value="5">中专</option>-->
-									<!--<option value="6">初中</option>-->
-								<!--</select>-->
 								<label for="a1" >
-                            		<input name="EducationId" type="radio" value="1" id="a1"  checked=checked groupfor="gw" style="margin: 7px 10px 0 0;" />研究生及以上   </label>
+                            		<input   {% if result["edu_status_id"] == 1 %} {{"checked"}} {% endif %}  name="EducationId" type="radio" value="1" id="a1"  checked=checked groupfor="gw" style="margin: 7px 10px 0 0;" />研究生及以上   </label>
                              	<label for="a2" >
-                            		<input name="EducationId" type="radio" value="2" id="a2"   groupfor="gs" style="margin: 7px 10px 0 10px;" />本科    </label>
+                            		<input   {% if result["edu_status_id"] == 2 %} {{"checked"}} {% endif %}  name="EducationId" type="radio" value="2" id="a2"   groupfor="gs" style="margin: 7px 10px 0 10px;" />本科    </label>
                              	<label for="a3" >
-                            		<input name="EducationId" type="radio" value="3" id="a3"    groupfor="wd" style="margin: 7px 10px 0 10px;" />大专    </label>
+                            		<input   {% if result["edu_status_id"] == 3 %} {{"checked"}} {% endif %}  name="EducationId" type="radio" value="3" id="a3"    groupfor="wd" style="margin: 7px 10px 0 10px;" />大专    </label>
                              	<label for="a4" >
-                            		<input name="EducationId" type="radio" value="4" id="a4"     groupfor="xs" style="margin: 7px 10px 0 10px;" />高中   </label>
+                            		<input    {% if result["edu_status_id"] == 4 %} {{"checked"}} {% endif %}  name="EducationId" type="radio" value="4" id="a4"     groupfor="xs" style="margin: 7px 10px 0 10px;" />高中   </label>
 								<label for="a5" >
-                            		<input name="EducationId" type="radio" value="5" id="a5"     groupfor="xs" style="margin: 7px 10px 0 10px;" />中专   </label>
+                            		<input    {% if result["edu_status_id"] == 5 %} {{"checked"}} {% endif %}  name="EducationId" type="radio" value="5" id="a5"     groupfor="xs" style="margin: 7px 10px 0 10px;" />中专   </label>
                            		 <label for="a6">
-                                	<input name="EducationId" type="radio" value="6" id="a6"    groupfor="qt" style="margin: 7px 10px 0 10px;"/>初中及以下 </label>
+                                	<input    {% if result["edu_status_id"] == 6 %} {{"checked"}} {% endif %}   name="EducationId" type="radio" value="6" id="a6"    groupfor="qt" style="margin: 7px 10px 0 10px;"/>初中及以下 </label>
 							</td>
 						</tr>
 
@@ -133,50 +125,50 @@ function example() {
 							<td >就业状态：</td>
 							<td>
 								<label for="a1" >
-                            		<input name="UserType" type="radio" value="1" id="a1"  checked=checked groupfor="gw" style="margin: 7px 10px 0 0;" />工薪族   </label>
+                            		<input  {% if result["work_status_id"] == 1 %} {{"checked"}} {% endif %}    name="UserType" type="radio" value="1" id="a1"  groupfor="gw" style="margin: 7px 10px 0 0;" />工薪族   </label>
                              	<label for="a2" >
-                            		<input name="UserType" type="radio" value="2" id="a2"   groupfor="gs" style="margin: 7px 10px 0 10px;" />私营业主    </label>
+                            		<input {% if result["work_status_id"] == 2 %} {{"checked"}}  {% endif %}    name="UserType" type="radio" value="2" id="a2"   groupfor="gs" style="margin: 7px 10px 0 10px;" />私营业主    </label>
                              	<label for="a3" >
-                            		<input name="UserType" type="radio" value="3" id="a3"    groupfor="wd" style="margin: 7px 10px 0 10px;" />网店卖家    </label>
+                            		<input {% if result["work_status_id"] == 3 %} {{"checked"}}  {% endif %}    name="UserType" type="radio" value="3" id="a3"    groupfor="wd" style="margin: 7px 10px 0 10px;" />网店卖家    </label>
                              	<label for="a4" >
-                            		<input name="UserType" type="radio" value="4" id="a4"     groupfor="xs" style="margin: 7px 10px 0 10px;" />学生   </label>
-                           		 <label for="a5">
-                                	<input name="UserType" type="radio" value="6" id="a5"    groupfor="qt" style="margin: 7px 10px 0 10px;"/>其他 </label>
+                            		<input {% if result["work_status_id"] == 4 %} {{"checked"}}  {% endif %}    name="UserType" type="radio" value="4" id="a4"     groupfor="xs" style="margin: 7px 10px 0 10px;" />学生   </label>
+                              <label for="a5">
+                                	<input {% if result["work_status_id"] == 6 %} {{"checked"}}  {% endif %}    name="UserType" type="radio" value="6" id="a5"    groupfor="qt" style="margin: 7px 10px 0 10px;"/>其他 </label>
 							</td>
 						</tr>
 
 						<tr style="height:50px">
 							<td >信用卡号：</td>
 							<td>
-								<input id="creditnumber" name="creditnumber" type="text" placeholder=""  value="" >
+								<input id="creditnumber" name="creditnumber" type="text" placeholder=""  value="{{ result["credit_card"] }}" >
 							</td>
 						</tr>
 
 						<tr style="height:50px">
 							<td >每月工资/元：</td>
 							<td>
-								<input id="salary" name="salary" type="text" placeholder=""  value="" >
+								<input id="salary" name="salary" type="text" placeholder=""  value="{{ result["salary"] }}" >
 							</td>
 						</tr>
 
 						<tr style="height:50px">
 							<td >房贷月供/元：</td>
 							<td>
-								<input id="loan" name="loan" type="text" placeholder=""  value="" >
+								<input id="loan" name="loan" type="text" placeholder=""  value="{{ result["house_loan"] }}" >
 							</td>
 						</tr>
 
 						<tr style="height:50px">
 							<td >月可支配金额/元：</td>
 							<td>
-								<input id="AverageSalary" name="AverageSalarys" type="text" placeholder=""  value="" >
+								<input id="AverageSalary" name="AverageSalarys" type="text" placeholder=""  value="{{ result["spare_money"] }}" >
 							</td>
 						</tr>
 
 						<tr style="height:50px">
 							<td >每月可接受还贷/元：</td>
 							<td>
-								<input id="AverageSalary" name="AverageSalary" type="text" placeholder=""  value="" >
+								<input id="AverageSalary" name="AverageSalary" type="text" placeholder=""  value="{{ result["loan_repay"] }}" >
 							</td>
 						</tr>
 

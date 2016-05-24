@@ -4,7 +4,15 @@ import datetime
 from database import *
 
 
-# 计算信用并修改额度
+# 交易数据对信用的更改(频次很高,每次查询信用都会调用)
+def changeCreditUseDeal():
+	print "service - changeCreditUseDeal:每次获取信用时,都会先调用这个方法来调整信用"
+	# 访问其他数据,进行处理
+	# 传出 username , 去访问第3方提供的网络接口, 获取该用户的信用权值
+	# 使用权值更改信用
+
+
+# detial填写完后,初始化信用的算法
 def countCredit(username):
 	print "计算信用模块"
 	partDetail = getPartDetail(username)
@@ -24,6 +32,8 @@ def changeCreditWhenReturn(username,ahead_days,money_differ,duemoney,actual_retu
 	 newCredit = oldCredit
 	 if (actual_return > 0):		# 若实际还款 > 0 ,则增加相同份额的信用
 		 newCredit = newCredit + actual_return
+	 if ( ahead_days < 0 ):
+		 newCredit = 0.8 * newCredit
 	 changeCredit(newCredit,username)
 
 
