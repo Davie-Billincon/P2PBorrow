@@ -8,6 +8,7 @@ from flask import render_template
 from flask import redirect
 from flask import url_for
 from wtforms import Form , StringField ,PasswordField , validators
+from urllib import unquote
 
 from service import  *
 
@@ -23,11 +24,18 @@ if ( not registerCheck(admin) ):
 	addUser(admin,admin)
 	addDetail(getUerID(admin),admin,admin,350301,186,2,3,3,3424,3000,7000,200,300)
 	countCredit(admin)
+	changeMoney(10000,admin)
 
 class LoginForm(Form):
 	username = StringField("username",[validators.Required()])
 	password = PasswordField("password",[validators.Required()])
 form = LoginForm()
+
+
+#为首页公告存放公告信息
+gonggao_1 = u"~暂时没有公告呢~"
+gonggao_2 = u"~暂时没有公告呢~"
+gonggao_3 = u"~暂时没有公告呢~"
 
 # 访问起始点,根目录（根据session判断是否登录过，来重定向请求）
 @app.route("/",methods=['GET','POST'])
@@ -40,7 +48,12 @@ def home():
 			print "/:    用户没有填写详情,重定向->/detail"
 			return redirect("/detail")
 		print "/:    session存在用户名,重定向—>shouye.html"
-		return render_template('shouye.html',username = username)
+		return render_template('shouye.html',
+							   username = username,
+							   gonggao_1 = gonggao_1,
+							   gonggao_2 = gonggao_2,
+							   gonggao_3 = gonggao_3
+								)
 	else:                                                 # 没登录过就跳转到登录页面
 		print "/:    sessiong 没有用户名,重定向->/login"
 		return redirect(url_for('login'))
@@ -99,8 +112,20 @@ def register():
 @app.route("/detail",methods=['GET','POST'])
 def detail():
 	print "/detail:详情填写"
+	username = escape(session['username'])
 	if request.method=='POST':
 		print "/detail:    处理详情表单"
+		# 打包认证参数
+		values = {}
+		values['IDCheck'] = int(request.form['IDCheck'])
+		values['videoCheck'] = int(request.form['videoCheck'])
+		values['eduCheck'] = int(request.form['eduCheck'])
+		values['phoneCheck'] = int(request.form['phoneCheck'])
+		values['studyCheck'] = int(request.form['studyCheck'])
+		print "/detail:    打包好的用户认证信息",values
+		print "->serveice使用打包好的信息修改用户信用Level"
+		countCreditWithCheck(username,None,values)
+		# 获取表单其他参数
 		realname = request.form['realname']
 		IDnumber = request.form['IDnumber']
 		phone = request.form['phone']
@@ -113,7 +138,6 @@ def detail():
 		AverageSalarys = request.form['AverageSalarys']
 		AverageSalary = request.form['AverageSalary']
 		# 字段转译
-		username = escape(session['username'])
 		user_id = getUerID(username)
 		realname = realname
 		identity_id = IDnumber
@@ -136,7 +160,7 @@ def detail():
 		print "/detail:    处理完详情,重定向->/"
 		return redirect("/")
 	print "/detail:    展示注册页面,重定向->detail.html"
-	return render_template('detail.html')
+	return render_template('detail.html',username = username)
 
 # 展示个人信息 & 修改个人信息
 @app.route("/showDetail",methods=['GET','POST'])
@@ -146,7 +170,12 @@ def showDetail():
 	print "/showDetail:    当前用户为: %s" % (username)
 	if request.method=='GET':
 		result = getAllDetail(username)
-		return render_template('showDetail.html', result = result)
+		password = getPassword(username)
+		return render_template('showDetail.html',
+							   result = result,
+							   password = password,
+							   username = username
+							   )
 	else:
 		print "/showDetail:    处理详情修改表单"
 		realname = request.form['realname']
@@ -174,10 +203,15 @@ def showDetail():
 		house_loan = loan
 		spare_money = AverageSalarys
 		loan_repay = AverageSalary
-		print "->数据库添加详情"
+		print "->数据库改变详情"
 		changeDetail(user_id, username, realname, identity_id,
 				  phone, marry_status_id, edu_status_id, work_status_id,
 				  credit_card, salary, house_loan, spare_money, loan_repay)
+		# 新增修改密码功能,这里获取表单中的新密码
+		password = str(request.form['password'])
+		print "->数据库改变密码"
+		changePassword(password,username)
+		print "/showDetail:    详情数据处理完毕,重定向到本身->/showDetail"
 		return redirect("/showDetail")
 
 # 借款模块
@@ -192,9 +226,10 @@ def borrow():
 		borrow_money = float(request.form['borrow_money'])
 		return_rate = str(request.form['return_rate'])
 		duration = str(request.form['duration'])
-		print "/borrow:    借款数据为   %s   %s   %s   %s" %(user_id,borrow_money,return_rate,duration)
+		aim = request.form['aim']
+		print "/borrow:   jiekuanshujuwei    %s   %s   %s  %s   %s" %(user_id,borrow_money,return_rate,duration,aim)
 		print "->数据库插入借款条目"
-		if ( not addBorrow(user_id,username,borrow_money,return_rate,duration) ): # 若返回false,则是额度不够了
+		if ( not addBorrow(user_id,username,borrow_money,return_rate,duration,aim) ): # 若返回false,则是额度不够了
 			print "/borrow:        额度不够,插入失败,重定向->borrow.html"
 			credit = getCredit(username)
 			message = u"您的额度不够了"
@@ -216,11 +251,13 @@ def myinfo():
 		print "/myinfo:    展示自己相关信息的页面"
 		print "->数据库查询一堆数据"
 		borrowItems = getBorrow(username)
+		return_records = getRecord(username)
+		lendRecord = getLendForShow(username)
+		# 注意:用户固定参数应该放在上面方法之后,因为上面方法对下面有改变
+		money = str(getMoney(username))
+		credit_level = getLevel(username)
 		badTimes = str(getTotalBadTimes(username))
 		credit = str(getCredit(username))
-		return_records = getRecord(username)
-		lendRecord = getLend(username)
-		money = str(getMoney(username))
 		print "/myinfo:    myinfo查询完毕,重定向->myinfo.html"
 		return render_template('myinfo.html',
 							   	borrowItems = borrowItems,
@@ -229,7 +266,8 @@ def myinfo():
 							   	return_records = return_records,
 							   	lendRecord = lendRecord,
 							   	money = money,
-								username=username
+								username=username,
+							   	credit_level = credit_level
 						   		)
 	else:
 		pass
@@ -280,11 +318,13 @@ def showlend():
 		print "->数据库查询可投资数据"
 		order_duration = getActualBorrowOrderByDuration()
 		order_rate = getActualBorrowOrderByRate()
+		borrow_all = getAllBorrowForShow()
 		print "/showlendall:    可投资查询完毕,重定向->lend.html"
 		return render_template('lend.html',
 							   order_duration = order_duration,
 							   order_rate = order_rate,
-							   username = username
+							   username = username,
+							   borrow_all = borrow_all
 							   )
 	else:
 		print "/showlendall:    查看详细投资列表请求到来"
@@ -301,6 +341,7 @@ def showlend():
 		print "/showlendall:    可投资细节数据查询完毕,重定向->lendpart.html"
 		return render_template('lendpart.html', searchResult = searchResult , username = username)
 
+# 用户依据rate和duration进行不针对单个borrow的投资
 @app.route("/lend",methods=['GET','POST'])
 def lend():
 	print "/lend:开始投资"
@@ -317,8 +358,36 @@ def lend():
 		print "->数据库查询uerid"
 		user_id = getUerID(username)
 		print "->数据库插入投资条目( 会因为余额不足而投资失败 )"
-		addLend(user_id,username,lend_money,lend_rate,duration)
+		isSuccess = addLend(user_id,username,lend_money,lend_rate,duration)
+		print "/lend:    检查是否投资成功,成功就给予等级加成"
+		if ( isSuccess ) : changeCreditWhenLend(username)
 		print "/lend:    无论投资失败与否,都重定向->/showlendall"
+		return redirect("/showlendall")
+
+# 用户进行针对单个borrow的投资
+@app.route("/lendToBorrow", methods=['GET', 'POST'])
+def lendToBorrow():
+	print "/lendToBorrow:开始对单个borrow投资"
+	username = str(escape(session['username']))
+	print "/lendToBorrow:    当前用户为: %s" % (username)
+	if request.method == 'GET':
+		pass
+	else:
+		print "/lendToBorrow:    处理对单个borrow的投资请求"
+		duration = int(request.form['duration'])
+		lend_rate = int(request.form['lend_rate'])
+		lend_money = float(request.form['lend_money'])
+		borrow_id = int(request.form['borrow_id'])
+		userBeLended = str(request.form['userBeLended'])
+		print "/lendToBorrow:    请求内容为:   duration:%s  ,  lend_rate:%s  ,  lend_money:%s  ,  borrow_id:%s  ,  userBeLended:%s" % (
+		duration, lend_rate, lend_money, borrow_id,userBeLended)
+		print "->数据库查询uerid"
+		user_id = getUerID(username)
+		print "->数据库插入针对borrow的投资条目( 会因为余额不足而投资失败 )"
+		isSuccess = addLendToBorrow(user_id, username, lend_money, lend_rate, duration, borrow_id,userBeLended)
+		print "/lendToBorrow:    检查是否投资成功,成功就给予等级加成"
+		if (isSuccess): changeCreditWhenLend(username)
+		print "/lendToBorrow:    无论投资失败与否,都重定向->/showlendall"
 		return redirect("/showlendall")
 
 
@@ -328,6 +397,11 @@ def back():
 	print "/back:进入后台管理"
 	username = str(escape(session['username']))
 	print "/back:    当前用户为: %s" %(username)
+	# 将公告变为全局变量
+	global gonggao_1
+	global gonggao_2
+	global gonggao_3
+	# 执行请求处理
 	if request.method=='GET':
 		print "/back:    后台页面展示"
 		if (username != admin):
@@ -335,14 +409,23 @@ def back():
 			return render_template('backerror.html',username = username)
 		print "->数据库查询一系列数据"
 		print "/back:    后台数据查询完毕,重定向->back.html"
-		return render_template('back.html')
+		return render_template('back.html',
+							   gong_1 = gonggao_1,
+							   gong_2 = gonggao_2,
+							   gong_3 = gonggao_3
+							   )
 	else:
 		print "/back:    处理后台修改提交"
 		user_change = str(request.form['user_change'])
 		money = str(request.form['money'])
-		print "->数据库插入修改内容"
-		changeMoney(money,user_change)
-		print "/back:    插入完毕,重定向->/myinfo"
+		if ( money != "" and user_change != ""):
+			print "->数据库修改用户资金"
+			changeMoney(money,user_change)
+		# 用上传的公告内容修改本地公告变量
+		gonggao_1 = request.form['gonggao_1']
+		gonggao_2 = request.form['gonggao_2']
+		gonggao_3 = request.form['gonggao_3']
+		print "/back:    修改完毕,重定向->/myinfo"
 		return redirect("/myinfo")
 
 

@@ -4,6 +4,13 @@ import datetime
 from database import *
 
 
+
+# ----------------------------------------------------------------------------------------------------
+# 信用评级算法部分
+# ----------------------------------------------------------------------------------------------------
+
+
+
 # 交易数据对信用的更改(频次很高,每次查询信用都会调用)
 def changeCreditUseDeal():
 	print "service - changeCreditUseDeal:每次获取信用时,都会先调用这个方法来调整信用"
@@ -14,27 +21,172 @@ def changeCreditUseDeal():
 
 # detial填写完后,初始化信用的算法
 def countCredit(username):
-	print "计算信用模块"
+	print "service - countCredit:依据detial计算信用模块"
 	partDetail = getPartDetail(username)
-	print "    用户的详情为:",partDetail
+	print "service - countCredit:    用户的基本详情为:",partDetail
 	lastDetail = getLastDetail(username)
-	print "    用户的其他详情为:",lastDetail
-	credit_limit = 0
-	# 计算信用算法
-	credit_limit = 3000
-	# 写入数据库
-	changeCredit(credit_limit,username)
+	print "service - countCredit:    用户的其他详情为:",lastDetail
+	print "service - countCredit:    依据用户可用余额修改信用等级"
+	spare_money = partDetail['spare_money']
+	levelUp = getLevelUpByUsemoney(spare_money)
+	print "service - countCredit:    得到的信用奖励为:",levelUp
+	changeUserLevelByLevelDiff(username,levelUp)
+
+# detial填写完后,使用认证初始化信用的接口
+def countCreditWithCheck(username,oldValues,newValues):
+	print "service - countCreditWithCheck:得到新旧认证信息,计算该信用"
+	# 若旧认证为none(也就是第一次注册时),设定旧认证数据包全为否
+	if (oldValues == None):
+		oldValues = {}
+		oldValues['IDCheck'] = 0
+		oldValues['videoCheck'] = 0
+		oldValues['eduCheck'] = 0
+		oldValues['phoneCheck'] = 0
+		oldValues['studyCheck'] = 0
+	# 计算新旧认证信息以及他们的差值
+	oldLevelUp = getLevelUpByCheckResult(oldValues)
+	newLevelUp = getLevelUpByCheckResult(newValues)
+	levelDiff = newLevelUp - oldLevelUp
+	print "service - countCreditWithCheck:    依据check获得的信用加分差为:",levelDiff
+	changeUserLevelByLevelDiff(username,levelDiff)
 
 # 每次有还款插入时,调用这个方法进行调整信用
 def changeCreditWhenReturn(username,ahead_days,money_differ,duemoney,actual_return):
 	 print "处理上述传入的还款信息,给出新信用"
-	 oldCredit = getCredit(username)
-	 newCredit = oldCredit
-	 if (actual_return > 0):		# 若实际还款 > 0 ,则增加相同份额的信用
-		 newCredit = newCredit + actual_return
-	 if ( ahead_days < 0 ):
-		 newCredit = 0.8 * newCredit
-	 changeCredit(newCredit,username)
+	 levelUp = getLevelUpByRecord(ahead_days,money_differ,duemoney,actual_return)
+	 changeUserLevelByLevelDiff(username, levelUp)
+
+# 每次用户投资时,调用这个方法进行信用调整
+def changeCreditWhenLend(username):
+	levelUp = 2
+	changeUserLevelByLevelDiff(username, levelUp)
+
+# 每次用户投资回款时,调用这个方法进行信用调整
+def changeCreditWhenRecive(username):
+	levelUp = 2
+	changeUserLevelByLevelDiff(username, levelUp)
+
+
+# 依据level值返回等级，小于等于0为0级
+def getLevelIndexByLevel(credit_level):
+	if (1 and  credit_level <=0):
+		return 0
+	elif (credit_level >=1 and credit_level <=25):
+		return 1
+	elif (credit_level >=26 and credit_level <=50):
+		return 2
+	elif (credit_level >=51 and credit_level <=75):
+		return 3
+	elif (credit_level >=76 and credit_level <=100):
+		return 4
+	elif (credit_level >=101 and credit_level <=125):
+		return 5
+	elif (credit_level >=126 and 1):
+		return 6
+
+# 依据level返回高等级的钱数
+def getLevelMoneyByLevel(credit_level):
+	if (1 and credit_level <= 0):
+		return 0
+	elif (credit_level >= 1 and credit_level <= 25):
+		return 2000.0
+	elif (credit_level >= 26 and credit_level <= 50):
+		return 3000.0
+	elif (credit_level >= 51 and credit_level <= 75):
+		return 5000.0
+	elif (credit_level >= 76 and credit_level <= 100):
+		return 10000.0
+	elif (credit_level >= 101 and credit_level <= 125):
+		return 15000.0
+	elif (credit_level >= 126 and 1):
+		return 50000.0
+
+
+# 依据username和level增值（可以为负）来完成level增加修改和资金增加修改
+def changeUserLevelByLevelDiff(username,levelDiff):
+	print "service - changeUserLevelByLevelDiff:根据给定levelDiff修改用户信用"
+	# 获取新旧Level
+	oldLevel = getLevel(username)
+	newLevel = oldLevel + levelDiff
+	print "service - changeUserLevelByLevelDiff:    新旧level为:",oldLevel,newLevel
+	# 获取修旧Level之间的钱差值
+	oldMoney = getLevelMoneyByLevel(oldLevel)
+	newMoney =  getLevelMoneyByLevel(newLevel)
+	moneyDiff = newMoney - oldMoney
+	print "service - changeUserLevelByLevelDiff:    新旧level钱差值为:",moneyDiff
+	# 修改用户的level和资金
+	changeLevel(newLevel,username)
+	newCredit_limit = getCredit(username) + moneyDiff
+	changeCredit(newCredit_limit,username)
+
+
+
+# ----------------------------------------------------------------------------------------------------
+# 信用评级算法的算法支持部分
+# ----------------------------------------------------------------------------------------------------
+
+
+
+# 依据可用余额返回对应等级level
+def getLevelUpByUsemoney(useMoney):
+	if (1 and useMoney <= 0):
+		return 0
+	elif (useMoney >= 1 and useMoney <= 500):
+		return 0
+	elif (useMoney >= 501 and useMoney <= 1000):
+		return 3
+	elif (useMoney >= 1001 and useMoney <= 3000):
+		return 5
+	elif (useMoney >= 3001 and useMoney <= 8000):
+		return 8
+	elif (useMoney >= 8001 and 1):
+		return 10
+
+# 依据认证信息返回level差值
+def getLevelUpByCheckResult(valuePackage):
+	levelUp = 0
+	if ( valuePackage['IDCheck'] == 1):
+		levelUp += 10
+	if (valuePackage['videoCheck'] == 1):
+		levelUp += 10
+	if (valuePackage['eduCheck'] == 1):
+		levelUp += 5
+	if (valuePackage['phoneCheck'] == 1):
+		levelUp += 10
+	if (valuePackage['studyCheck'] == 1):
+		levelUp += 10
+	return levelUp
+
+# 依据还款记录来计算levelUp
+def getLevelUpByRecord(ahead_days,money_differ,duemoney,actual_return):
+	levelUp = 0
+	if (actual_return >= duemoney):
+		levelUp += 1
+	if ( ahead_days < -15 ):
+		levelUp += -2
+	return levelUp
+
+# 封装getLend方法,加入回款检测机制
+def getLendForShow(username):
+	print "service - getLendForShow:遍历用户的所有lend,检查是否需要回款"
+	# 获取该用户的所有还款
+	results = getLend(username)
+	# 获取当前时间
+	nowTimeStr = time.strftime("%Y-%m-%d", time.localtime())
+	for item in results:
+		ahead_days = countDayDiff(item['return_date'],nowTimeStr)		# 获取当前时间, < 0 即当前时间在约定之间之后
+		if ( ahead_days <= 0 and item['isReturn'] == 0 ):
+			print "service - getLendForShow:    发生回款"
+			# 修改封装好的isReturn , 和数据库中的isReturn
+			item['isReturn'] = 1
+			changeIsReturn(username,item['lend_id'],1)
+			# 修改用户的money(增加回款)
+			oldMoney = getMoney(username)
+			newMoney = oldMoney + item['back_money']
+			changeMoney(newMoney,username)
+			# 修改用户的信用等级
+			changeCreditWhenRecive(username)
+	return results
 
 
 
@@ -44,7 +196,7 @@ def changeCreditWhenReturn(username,ahead_days,money_differ,duemoney,actual_retu
 
 
 
-# 根据time字符串计算天数差
+# 根据time字符串计算天数差( 结果>0 说明后者比前者早)
 def countDayDiff(dueDate,returnDate):
 	dueDate_origin =  time.mktime(time.strptime(dueDate,"%Y-%m-%d"))
 	returnDate_origin = time.mktime(time.strptime(returnDate,"%Y-%m-%d"))
@@ -286,7 +438,6 @@ def changeBorrowWhenReturnAfterDead(username, borrow_id, return_time, return_mon
 
 # ----------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------
-
 
 
 

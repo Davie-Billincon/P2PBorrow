@@ -2,7 +2,8 @@ drop table users;
 drop table all_borrow;
 drop table users_detail;
 
-
+users
+user_id,username,password,credit_limit,money
 
 users_detail
 user_id , username , realname , identity_id , phone , marry_status_id , edu_status_id 	, work_status_id , credit_card 	, salary , house_loan , spare_money , loan_repay 
@@ -11,7 +12,7 @@ user_id , username , realname , identity_id , phone , marry_status_id , edu_stat
 
 borrow
 borrow_id,user_id,username,borrow_money,return_rate,return_money,borrow_date,duration,
-duetime_phase,recent_duetime,recent_duemoney,has_return,bad_times
+duetime_phase,recent_duetime,recent_duemoney,has_return,bad_times,aim
 
 
 return_record
@@ -21,6 +22,8 @@ borrow_id,ahead_days,money_differ,duemoney, actual_return
 lend
 lend_id,user_id,username,lend_money,lend_rate,back_money,lend_date,duration,return_date,isReturn
 
+lend_borrow
+lend_id,userBeLended,borrow_id
 
 cur_all.execute(sql)
 values = cur_all.fetchall()
@@ -41,6 +44,8 @@ results = []
 		results.append(result)
 return results
 
+if (len(results) == 0):
+		results.append({})
 
 
 sql = """
@@ -87,7 +92,19 @@ def back():
 
 <h4 style=""> 用户名:{{ username }}</h4>
 
+if ():
 
+else if ():
+
+else if ():
+
+else if ():
+
+else if ():
+
+else if ():
+
+else if ():
 
 
 

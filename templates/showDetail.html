@@ -62,9 +62,22 @@ function example() {
 					<tr style="height:60px">
 						<td colspan="2" align="center"><h4 style=""> </h4></td>
 					</tr>
+                     <tr style="height:60px">
+						    <td colspan="2" align="center"><h4 style="color:red">修改下列表单中的信息,提交即可完成修改</h4></td>
+                     </tr>
 
 					<form id="" class="form-inline" method="post" action="">
-					
+					    <tr style="height:50px">
+							<td >修改密码：</td>
+							<td>
+								<input id="password" name="password" type="text" placeholder=""  value="{{ password }}" >
+							</td>
+						</tr>
+
+                        <tr style="height:60px">
+						    <td colspan="2" align="center"><h4 style=""> </h4></td>
+					    </tr>
+
 						<tr style="height:50px">
 							<td >真实姓名：</td>
 							<td>
@@ -174,7 +187,7 @@ function example() {
 
 						<tr>
 							<td colspan="2">
-								<input  type="submit" class='btn btn-info btn-block ' value="提交信息">
+								<input  type="submit" class='btn btn-info btn-block ' value="提交修改">
 							</td>
 						</tr>
 

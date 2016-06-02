@@ -36,7 +36,7 @@ function checkMoney(){
         layer.msg("填写投资金额")
         return
     }
-    if( lend_money > total_money ){
+    if( parseFloat(lend_money) > parseFloat(total_money) ){
         layer.msg("投资大于现有需求")
         return
     }

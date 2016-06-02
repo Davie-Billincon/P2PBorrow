@@ -30,7 +30,8 @@ cur_all.execute("""
 			username 			varchar UNIQUE,
 			password			varchar,
 			credit_limit        varchar,
-			money				varchar
+			money				varchar,
+			credit_level		integer
 			)
 """)
 
@@ -65,7 +66,8 @@ cur_all.execute("""
     			recent_duetime      varchar,
     			recent_duemoney     varchar,
     			has_return			varchar,
-    			bad_times   		varchar
+    			bad_times   		varchar,
+    			aim					varchar
     			)
 """)
 cur_all.execute("""
@@ -82,6 +84,13 @@ cur_all.execute("""
     			isReturn			varchar
     			)
 """)
+cur_all.execute("""
+    CREATE TABLE IF NOT EXISTS lend_borrow(
+    		    lend_id 			integer REFERENCES all_lend(lend_id),
+    		    username		integer REFERENCES users(username),
+    		    borrow_id 			integer REFERENCES all_borrow(borrow_id)
+    			)
+""")
 
 # 在数据库中添加用户(总数据库添加用户的同时,为该用户开辟其自己的数据库)
 def addUser(username,password):
@@ -91,8 +100,8 @@ def addUser(username,password):
 	# 在总数据库添加用户
 	sql = """
 		insert into users
-			  (username,password,credit_limit,money)
-		values('%s','%s',0,0)
+			  (username,password,credit_limit,money,credit_level)
+		values('%s','%s',0,0,0)
 		""" %(username,password)
 	cur_all.execute(sql)
 	conn_all.commit()
@@ -111,7 +120,8 @@ def addUser(username,password):
     			recent_duetime      varchar,
     			recent_duemoney     varchar,
     			has_return			varchar,
-    			bad_times   		varchar
+    			bad_times   		varchar,
+    			aim					varchar
     			)
     """
 	cur_user.execute(sql)
@@ -211,7 +221,7 @@ def addDetail(user_id , username , realname , identity_id ,
 	conn_all.commit()
 	return
 
-#获取详情
+#获取用户所有详情
 def getAllDetail(username):
 	sql = """
 			SELECT * FROM users_detail
@@ -233,7 +243,7 @@ def getAllDetail(username):
 	result['loan_repay'] = str(values[12])
 	return result
 
-# 添加详情
+# 改变详情
 def changeDetail(user_id , username , realname , identity_id ,
 			  phone , marry_status_id , edu_status_id , work_status_id ,
 			  credit_card , salary , house_loan , spare_money , loan_repay):
@@ -249,9 +259,6 @@ def changeDetail(user_id , username , realname , identity_id ,
 	cur_all.execute(sql)
 	conn_all.commit()
 
-
-
-
 # 获取用户是否已经有详情了
 def detailCheck(username):
 	sql = """
@@ -263,9 +270,7 @@ def detailCheck(username):
 		return False
 	else:
 		return True
-
-
-# 获取详情(返回对象为字典)
+# 获取部分详情(返回对象为字典)
 def getPartDetail(username):
 	sql = """
 		SELECT * FROM users_detail
@@ -282,13 +287,21 @@ def getPartDetail(username):
 	result['spare_money'] = int(values[11])
 	result['loan_repay'] = int(values[12])
 	return result
-
 # 获取详情的剩余部分
 def getLastDetail(username):
 	result = {}
 	result['is_realname'] = random.choice(range(2))
 	result['credit_money'] = random.choice(range(10000))
 	return result
+
+
+
+
+# ----------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------
+
+
+
 
 # 更新用户信用额度
 def changeCredit(credit_limit,username):
@@ -302,7 +315,7 @@ def changeCredit(credit_limit,username):
 	return
 # 获取用户信用额度
 def getCredit(username):
-	service.changeCreditUseDeal()
+	# service.changeCreditUseDeal()
 	sql = """
 		SELECT credit_limit FROM users
 		WHERE username == '%s';
@@ -310,6 +323,8 @@ def getCredit(username):
 	cur_all.execute(sql)
 	values = cur_all.fetchone()
 	return float(values[0])
+
+
 # 更新用户的存款
 def changeMoney(money,username):
 	if(float(money) < 0):
@@ -333,6 +348,47 @@ def getMoney(username):
 	return float(values[0])
 
 
+# 更新用户密码
+def changePassword(password,username):
+	sql = """
+    		UPDATE users
+			SET password = '%s'
+			WHERE username == '%s';
+    	""" % (password, username)
+	cur_all.execute(sql)
+	conn_all.commit()
+	return True
+# 获取用户密码
+def getPassword(username):
+	sql = """
+		SELECT password FROM users
+		WHERE username == '%s';
+    """ % (username)
+	cur_all.execute(sql)
+	values = cur_all.fetchone()
+	return str(values[0])
+
+
+# 更新用户信用等级
+def changeLevel(credit_level,username):
+	sql = """
+    		UPDATE users
+			SET credit_level = %d
+			WHERE username == '%s';
+    	""" % (credit_level, username)
+	cur_all.execute(sql)
+	conn_all.commit()
+	return True
+# 获取用户信用等级
+def getLevel(username):
+	sql = """
+		SELECT credit_level FROM users
+		WHERE username == '%s';
+    """ % (username)
+	cur_all.execute(sql)
+	values = cur_all.fetchone()
+	return int(values[0])
+
 
 # ----------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------
@@ -341,7 +397,7 @@ def getMoney(username):
 
 
 # 添加借款记录
-def addBorrow(user_id,username,borrow_money,return_rate,duration):
+def addBorrow(user_id,username,borrow_money,return_rate,duration,aim):
 	print "向数据库添加借款"
 	# 先获取借款记录的初始信息
 	return_money = float(borrow_money) * (1 + float(return_rate)/100)
@@ -369,10 +425,10 @@ def addBorrow(user_id,username,borrow_money,return_rate,duration):
 	# 在用户的个人数据库中插入数据
 	sql = """insert into borrow
 					  (borrow_money,return_rate,return_money,borrow_date,duration,
-						duetime_phase,recent_duetime,recent_duemoney,has_return,bad_times)
-				values('%s',%d,'%s','%s',%d,'%s','%s','%s','%s','%s')
+						duetime_phase,recent_duetime,recent_duemoney,has_return,bad_times,aim)
+				values('%s',%d,'%s','%s',%d,'%s','%s','%s','%s','%s','%s')
 			""" % (borrow_money, int(return_rate), return_money, borrow_date, int(duration),
-				   duetime_phase, recent_duetime, recent_duemoney, has_return, bad_times)
+				   duetime_phase, recent_duetime, recent_duemoney, has_return, bad_times, aim)
 	conn_user = sqlite3.connect("database/%s.db" % (username))
 	cur_user = conn_user.cursor()
 	cur_user.execute(sql)
@@ -392,10 +448,10 @@ def addBorrow(user_id,username,borrow_money,return_rate,duration):
 	# 在总数据库中插入借款记录
 	sql = """insert into all_borrow
 			  (borrow_id,user_id,username,borrow_money,return_rate,return_money,borrow_date,duration,
-				duetime_phase,recent_duetime,recent_duemoney,has_return,bad_times)
-		values('%s','%s','%s','%s',%d,'%s','%s',%d,'%s','%s','%s','%s','%s')
+				duetime_phase,recent_duetime,recent_duemoney,has_return,bad_times,aim)
+		values('%s','%s','%s','%s',%d,'%s','%s',%d,'%s','%s','%s','%s','%s','%s')
 	""" %(borrow_id,user_id,username,borrow_money,int(return_rate),return_money,borrow_date,int(duration),
-				duetime_phase,recent_duetime,recent_duemoney,has_return,bad_times)
+				duetime_phase,recent_duetime,recent_duemoney,has_return,bad_times,aim)
 	cur_all.execute(sql)
 	conn_all.commit()
 	return True
@@ -467,6 +523,7 @@ def getBorrow(username):
 		result['recent_duemoney'] = strToFloat(item[8])
 		result['has_return'] = strToFloat(item[9])
 		result['bad_times'] = int(item[10])
+		result['aim'] = item[11]
 		results.append(result)
 	if (len(results) == 0):
 		results.append({})
@@ -494,8 +551,53 @@ def getOneBorrow(username,borrow_id):
 	result['recent_duemoney'] = float(item[8])
 	result['has_return'] = float(item[9])
 	result['bad_times'] = int(item[10])
+	result['aim'] = item[11]
 	return result
 
+# 获取所有用户的所有借款记录(并且减去已经被投资金额)
+def getAllBorrowForShow():
+	sql = """
+		SELECT borrow_id,tmp.username as username,aim,borrow_money,duration,return_rate,all_lend,borrow_last,credit_level
+		FROM
+		(
+			SELECT borrow_id,username,aim,borrow_money,duration,return_rate,SUM(lend_money) as all_lend,(borrow_money - SUM(lend_money)) as borrow_last
+			FROM
+				(
+					SELECT borrow_id,borrow_lend.username as username,aim,borrow_money,borrow_lend.duration as duration,return_rate,lend_id,lend_money
+					FROM
+						(
+							SELECT borrow_id,username,aim,borrow_money,duration,return_rate,lend_id
+							FROM all_borrow LEFT OUTER JOIN lend_borrow USING (username,borrow_id)
+						) as borrow_lend
+						LEFT OUTER JOIN
+						all_lend USING (lend_id)
+				)
+			GROUP BY borrow_id,username
+		) as tmp
+		LEFT OUTER JOIN
+		users USING (username)
+		WHERE borrow_last > 0 OR borrow_last IS NULL
+	"""
+	cur_all.execute(sql)
+	values = cur_all.fetchall()
+	# 封装数据为字典列表
+	results = []
+	for item in values:
+		result = {}
+		if (item[7] == None):
+			result['borrow_last'] = float(item[3])
+		else:
+			result['borrow_last'] = float(item[7])
+		result['borrow_id'] = int(item[0])
+		result['username'] = str(item[1])
+		result['aim'] = item[2]
+		result['duration'] = int(item[4])
+		result['return_rate'] = int(item[5])
+		result['level'] = int(item[8])
+		results.append(result)
+	if (len(results) == 0):
+		results.append({})
+	return results
 
 
 
@@ -518,7 +620,7 @@ def addRecord(username,borrow_id,ahead_days,money_differ,duemoney,actual_return)
 	conn_user.commit()
 	conn_user.close
 
-# 查询还款记录
+# 查询用户所有的还款记录
 def getRecord(username):
 	sql = """
         	SELECT * FROM return_record
@@ -557,47 +659,6 @@ def getTotalBadTimes(username):
 	else:
 		return int(values[0])
 
-# # 按照duration,获取整理后的所有用户所有借款条目(该SQL没有减去已经投资了的总额)
-# # 按照 duration 分类,降序; 算出每组的 total_money; 利率波动范围: min_rate , max_rate
-# def getAllBorrowWithDuration():
-# 	sql = """
-#         SELECT sum(borrow_money) as total_money,duration,min(return_rate) as min_rate,max(return_rate) as max_rate
-# 		FROM all_borrow
-# 		GROUP BY duration
-# 		ORDER BY duration DESC
-#     """
-# 	cur_all.execute(sql)
-# 	values = cur_all.fetchall()
-# 	results = []
-# 	for item in values:
-# 		result = {}
-# 		result['total_money'] = item[0]
-# 		result['duration'] = item[1]
-# 		result['min_rate'] = item[2]
-# 		result['max_rate'] = item[3]
-# 		results.append(result)
-# 	return  results
-#
-# # 按照rate,获取整理后的所有用户所有借款条目(该SQL没有减去已经投资了的总额)
-# # 按照 rate 分类,降序; 算出每组的 total_money; 月份的波动范围: min_duration , max_duration
-# def getAllBorrowWithRate():
-# 	sql = """
-#         SELECT sum(borrow_money) as total_money,return_rate,min(duration) as min_duration,max(duration) as max_duration
-# 		FROM all_borrow
-# 		GROUP BY return_rate
-# 		ORDER BY return_rate DESC
-#     """
-# 	cur_all.execute(sql)
-# 	values = cur_all.fetchall()
-# 	results = []
-# 	for item in values:
-# 		result = {}
-# 		result['total_money'] = item[0]
-# 		result['return_rate'] = item[1]
-# 		result['min_duration'] = item[2]
-# 		result['max_duration'] = item[3]
-# 		results.append(result)
-# 	return  results
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -648,6 +709,31 @@ def addLend(user_id,username,lend_money,lend_rate,duration):
 	conn_all.commit()
 	return True
 
+# 为某个borrow添加投资
+def addLendToBorrow(user_id,username,lend_money,lend_rate,duration,borrow_id,userBeLended):
+	# 将lend信息插入lend数据表中
+	if ( not addLend(user_id, username, lend_money, lend_rate, duration) ):
+		return False
+	# 获取刚插入的lend的主键ID
+	sql = """
+    				SELECT MAX(lend_id) FROM lend
+    	  """
+	conn_user = sqlite3.connect("database/%s.db" % (username))
+	cur_user = conn_user.cursor()
+	cur_user.execute(sql)
+	values = cur_user.fetchone()
+	conn_user.close
+	lend_id = int(values[0])
+	# 为借款与投资的关联表插入数据
+	sql = """
+			insert into lend_borrow
+				  (lend_id,username,borrow_id)
+			values(%d,%s,%d)
+			""" % (lend_id,userBeLended,borrow_id)
+	cur_all.execute(sql)
+	conn_all.commit()
+	return True
+
 # 获取用户的所有lend
 def getLend(username):
 	sql = """
@@ -672,6 +758,26 @@ def getLend(username):
 		result['isReturn'] = int(item[7])
 		results.append(result)
 	return results
+
+# 修改对应用户,对应lend的还款情况
+def changeIsReturn(username,lend_id,isReturn):
+	sql = """
+    		UPDATE lend
+			SET isReturn = %d
+			WHERE lend_id == %d;
+    	""" % (isReturn, lend_id)
+	conn_user = sqlite3.connect("database/%s.db" % (username))
+	cur_user = conn_user.cursor()
+	cur_user.execute(sql)
+	conn_user.commit()
+	conn_user.close
+	return True
+
+
+# ----------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------
+
+
 
 # 按照duration,获取整理后的所有用户所有lend条目(减去已经投资的金额)
 def getActualBorrowOrderByDuration():
@@ -850,3 +956,5 @@ def getActualBorrowUseRate(rate):
 		result['total_lend'] = item[4]
 		results.append(result)
 	return results
+
+

@@ -55,7 +55,7 @@ function example() {
 	</div>	
 
 	<div class="col-xs-12" style="background-color:#F5F5F5;height:500px">
-		<div class="col-xs-3"></div>		
+		<div class="col-xs-3"></div>
 		<div class="col-xs-6">
 
 			<table id="" class="table"  frame="void">
@@ -99,6 +99,23 @@ function example() {
 								<input  type="text" name="duration" id="duration"  placeholder="" value="">
 							</td>
 						</tr>
+
+                        <tr style="height:50px">
+							<td >借款目的：</td>
+							<td>
+								<label for="a1" >
+                            		<input name="aim" type="radio" value="其他" id="a1"  checked=checked groupfor="gw" style="margin: 7px 10px 0 0;" />其他</label>
+                             	<label for="a2" >
+                            		<input name="aim" type="radio" value="购物" id="a2"   groupfor="gs" style="margin: 7px 10px 0 10px;" />购物</label>
+                             	<label for="a3" >
+                            		<input name="aim" type="radio" value="学业" id="a3"    groupfor="wd" style="margin: 7px 10px 0 10px;" />学业</label>
+                             	<label for="a4" >
+                            		<input name="aim" type="radio" value="旅行" id="a4"     groupfor="xs" style="margin: 7px 10px 0 10px;" />旅行</label>
+								<label for="a5" >
+                            		<input name="aim" type="radio" value="投资" id="a5"     groupfor="xs" style="margin: 7px 10px 0 10px;" />投资</label>
+							</td>
+						</tr>
+
 						<tr>
 							<td colspan="2">
 								<input  type="submit" class='btn btn-info btn-block ' value="提交申请">
