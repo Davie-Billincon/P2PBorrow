@@ -26,9 +26,10 @@ def countCredit(username):
 	print "service - countCredit:    用户的基本详情为:",partDetail
 	lastDetail = getLastDetail(username)
 	print "service - countCredit:    用户的其他详情为:",lastDetail
+	levelUp = 0
 	print "service - countCredit:    依据用户可用余额修改信用等级"
 	spare_money = partDetail['spare_money']
-	levelUp = getLevelUpByUsemoney(spare_money)
+	levelUp += getLevelUpByUsemoney(spare_money)
 	print "service - countCredit:    得到的信用奖励为:",levelUp
 	changeUserLevelByLevelDiff(username,levelUp)
 
