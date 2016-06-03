@@ -21,15 +21,23 @@ def changeCreditUseDeal():
 
 # detial填写完后,初始化信用的算法
 def countCredit(username):
-	print "service - countCredit:依据detial计算信用模块"
+	print "service - countCredit:依据detial计算信用模块----------------------------------------------------"
 	partDetail = getPartDetail(username)
 	print "service - countCredit:    用户的基本详情为:",partDetail
 	lastDetail = getLastDetail(username)
 	print "service - countCredit:    用户的其他详情为:",lastDetail
 	levelUp = 0
-	print "service - countCredit:    依据用户可用余额修改信用等级"
+	# 开始处理详情中获得的数据了
 	spare_money = partDetail['spare_money']
 	levelUp += getLevelUpByUsemoney(spare_money)
+	print "service - countCredit:    依据用户可用余额修改信用等级:",spare_money,levelUp
+	salary = partDetail['salary']
+	levelUp += getLevelUpBySalary(salary)
+	print "service - countCredit:    依据用户每月工资修改信用等级:",salary,levelUp
+	work = partDetail['work_status_id']
+	levelUp += getLevelUpByWork(work)
+	print "service - countCredit:    依据用户就业状态修改信用等级:",work,levelUp
+	# 计算完毕重置信用
 	print "service - countCredit:    得到的信用奖励为:",levelUp
 	changeUserLevelByLevelDiff(username,levelUp)
 
@@ -44,6 +52,7 @@ def countCreditWithCheck(username,oldValues,newValues):
 		oldValues['eduCheck'] = 0
 		oldValues['phoneCheck'] = 0
 		oldValues['studyCheck'] = 0
+		oldValues['cardCheck'] = 0
 	# 计算新旧认证信息以及他们的差值
 	oldLevelUp = getLevelUpByCheckResult(oldValues)
 	newLevelUp = getLevelUpByCheckResult(newValues)
@@ -72,34 +81,34 @@ def changeCreditWhenRecive(username):
 def getLevelIndexByLevel(credit_level):
 	if (1 and  credit_level <=0):
 		return 0
-	elif (credit_level >=1 and credit_level <=25):
+	elif (credit_level >=1 and credit_level <=35):
 		return 1
-	elif (credit_level >=26 and credit_level <=50):
+	elif (credit_level >=36 and credit_level <=60):
 		return 2
-	elif (credit_level >=51 and credit_level <=75):
+	elif (credit_level >=61 and credit_level <=85):
 		return 3
-	elif (credit_level >=76 and credit_level <=100):
+	elif (credit_level >=86 and credit_level <=110):
 		return 4
-	elif (credit_level >=101 and credit_level <=125):
+	elif (credit_level >=111 and credit_level <=135):
 		return 5
-	elif (credit_level >=126 and 1):
+	elif (credit_level >=136 and 1):
 		return 6
 
 # 依据level返回高等级的钱数
 def getLevelMoneyByLevel(credit_level):
 	if (1 and credit_level <= 0):
 		return 0
-	elif (credit_level >= 1 and credit_level <= 25):
+	elif (credit_level >= 1 and credit_level <= 35):
 		return 2000.0
-	elif (credit_level >= 26 and credit_level <= 50):
+	elif (credit_level >= 36 and credit_level <= 60):
 		return 3000.0
-	elif (credit_level >= 51 and credit_level <= 75):
+	elif (credit_level >= 61 and credit_level <= 85):
 		return 5000.0
-	elif (credit_level >= 76 and credit_level <= 100):
+	elif (credit_level >= 86 and credit_level <= 110):
 		return 10000.0
-	elif (credit_level >= 101 and credit_level <= 125):
+	elif (credit_level >= 111 and credit_level <= 135):
 		return 15000.0
-	elif (credit_level >= 126 and 1):
+	elif (credit_level >= 136 and 1):
 		return 50000.0
 
 
@@ -143,6 +152,30 @@ def getLevelUpByUsemoney(useMoney):
 	elif (useMoney >= 8001 and 1):
 		return 10
 
+# 依据每月工资返回对应等级的level
+def getLevelUpBySalary(salary):
+	if (1 and salary <= 0):
+		return 0
+	elif (salary >= 1 and salary <= 2000):
+		return 0
+	elif (salary >= 2001 and salary <= 5000):
+		return 1
+	elif (salary >= 5001 and salary <= 10000):
+		return 2
+	elif (salary >= 10001 and salary <= 20000):
+		return 3
+	elif (salary >= 20001 and 1):
+		return 5
+
+# 依据工作状态返回对应等级的level
+def getLevelUpByWork(work):
+	if (work == 1):
+		return 3
+	elif (work == 2):
+		return 2
+	elif (work == 3):
+		return 0
+
 # 依据认证信息返回level差值
 def getLevelUpByCheckResult(valuePackage):
 	levelUp = 0
@@ -150,12 +183,14 @@ def getLevelUpByCheckResult(valuePackage):
 		levelUp += 10
 	if (valuePackage['videoCheck'] == 1):
 		levelUp += 10
-	if (valuePackage['eduCheck'] == 1):
-		levelUp += 5
 	if (valuePackage['phoneCheck'] == 1):
 		levelUp += 10
 	if (valuePackage['studyCheck'] == 1):
 		levelUp += 10
+	if (valuePackage['cardCheck'] == 1):
+		levelUp += 5
+	if (valuePackage['eduCheck'] > 0):
+		levelUp += valuePackage['eduCheck']
 	return levelUp
 
 # 依据还款记录来计算levelUp

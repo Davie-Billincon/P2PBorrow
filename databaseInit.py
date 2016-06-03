@@ -25,24 +25,27 @@ addUser(1232,1232)
 addUser(1233,1233)
 addUser(1234,1234)
 
-# 模拟用户注册后的添加详情,以获得初始化的 信用等级 和 信用额度
+# 模拟用户注册后的添加详情,以获得初始化的 信用等级 和 信用额度 ( 10 + 10 + 3) + (3/2/0/3 + 1 + 8) = 32 + ?
 valuesPackage = {}
 valuesPackage['IDCheck'] = 1
 valuesPackage['videoCheck'] = 1
-valuesPackage['eduCheck'] = 0
 valuesPackage['phoneCheck'] = 0
 valuesPackage['studyCheck'] = 0
+valuesPackage['cardCheck'] = 0
+valuesPackage['eduCheck'] = 3
 
-addDetail(1,1231,"davie",350301,186,2,3,3,3424,3000,7000,4000,300)
+# user_id , username , realname , identity_id , phone , marry_status_id , edu_status_id
+# work_status_id , credit_card 	, salary , house_loan , spare_money , loan_repay
+addDetail(1,1231,"davie",350301,186,2,3,1,3424,3000,7000,4000,300)
 countCredit(1231)
 countCreditWithCheck(1231,None,valuesPackage)
-addDetail(2,1232,"davie",350301,186,2,3,3,3424,3000,7000,4000,300)
+addDetail(2,1232,"davie",350301,186,2,3,2,3424,3000,7000,4000,300)
 countCredit(1232)
 countCreditWithCheck(1232,None,valuesPackage)
 addDetail(3,1233,"davie",350301,186,2,3,3,3424,3000,7000,4000,300)
 countCredit(1233)
 countCreditWithCheck(1233,None,valuesPackage)
-addDetail(4,1234,"davie",350301,186,2,3,3,3424,3000,7000,4000,300)
+addDetail(4,1234,"davie",350301,186,2,3,1,3424,3000,7000,4000,300)
 countCredit(1234)
 countCreditWithCheck(1234,None,valuesPackage)
 

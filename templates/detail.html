@@ -88,17 +88,6 @@ function example() {
 							</td>
 						</tr>
                          <tr style="height:50px">
-							<td >完成学历认证：</td>
-							<td>
-								<label for="jb1" class="c333">
-                                    <input name="eduCheck" type="radio" value="1" id="jb1"   />是
-                                </label>
-                                <label for="jb2" class="c333">
-                                    <input name="eduCheck" type="radio" value="0" id="jb2"  checked/>否
-                                </label>
-							</td>
-						</tr>
-                         <tr style="height:50px">
 							<td >完成手机认证：</td>
 							<td>
 								<label for="jb1" class="c333">
@@ -117,6 +106,34 @@ function example() {
                                 </label>
                                 <label for="jb2" class="c333">
                                     <input name="studyCheck" type="radio" value="0" id="jb2" checked />否
+                                </label>
+							</td>
+						</tr>
+                         <tr style="height:50px">
+							<td >绑定信用卡：</td>
+							<td>
+								<label for="jb1" class="c333">
+                                    <input name="cardCheck" type="radio" value="1" id="jb1"   />是
+                                </label>
+                                <label for="jb2" class="c333">
+                                    <input name="cardCheck" type="radio" value="0" id="jb2" checked />否
+                                </label>
+							</td>
+						</tr>
+                        <tr style="height:50px">
+							<td >完成学历认证：</td>
+							<td>
+								<label for="jb1" class="c333">
+                                    <input name="eduCheck" type="radio" value="1" id="jb1"   />初中及以下
+                                </label>
+                                <label for="jb2" class="c333">
+                                    <input name="eduCheck" type="radio" value="2" id="jb2"  checked/>高中/中专
+                                </label>
+                                <label for="jb1" class="c333">
+                                    <input name="eduCheck" type="radio" value="3" id="jb1"   />本科/大专
+                                </label>
+                                <label for="jb1" class="c333">
+                                    <input name="eduCheck" type="radio" value="5" id="jb1"   />研究生及以上
                                 </label>
 							</td>
 						</tr>
@@ -159,7 +176,7 @@ function example() {
 							</td>
 						</tr>
 
-						<tr style="height:50px">
+						<tr style="display:none;height:50px">
 							<td >学历：</td>
 							<td>
 								<label for="a1" >
@@ -181,15 +198,11 @@ function example() {
 							<td >就业状态：</td>
 							<td>
 								<label for="a1" >
-                            		<input name="UserType" type="radio" value="1" id="a1"  checked=checked groupfor="gw" style="margin: 7px 10px 0 0;" />工薪族   </label>
+                            		<input name="UserType" type="radio" value="1" id="a1"  checked=checked groupfor="gw" style="margin: 7px 10px 0 0;" />工薪/私营   </label>
                              	<label for="a2" >
-                            		<input name="UserType" type="radio" value="2" id="a2"   groupfor="gs" style="margin: 7px 10px 0 10px;" />私营业主    </label>
+                            		<input name="UserType" type="radio" value="2" id="a2"   groupfor="gs" style="margin: 7px 10px 0 10px;" />学生    </label>
                              	<label for="a3" >
-                            		<input name="UserType" type="radio" value="3" id="a3"    groupfor="wd" style="margin: 7px 10px 0 10px;" />网店卖家    </label>
-                             	<label for="a4" >
-                            		<input name="UserType" type="radio" value="4" id="a4"     groupfor="xs" style="margin: 7px 10px 0 10px;" />学生   </label>
-                           		 <label for="a5">
-                                	<input name="UserType" type="radio" value="6" id="a5"    groupfor="qt" style="margin: 7px 10px 0 10px;"/>其他 </label>
+                            		<input name="UserType" type="radio" value="3" id="a3"    groupfor="wd" style="margin: 7px 10px 0 10px;" />无业    </label>
 							</td>
 						</tr>
 

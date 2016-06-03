@@ -119,9 +119,10 @@ def detail():
 		values = {}
 		values['IDCheck'] = int(request.form['IDCheck'])
 		values['videoCheck'] = int(request.form['videoCheck'])
-		values['eduCheck'] = int(request.form['eduCheck'])
 		values['phoneCheck'] = int(request.form['phoneCheck'])
 		values['studyCheck'] = int(request.form['studyCheck'])
+		values['cardCheck'] = int(request.form['cardCheck'])
+		values['eduCheck'] = int(request.form['eduCheck'])
 		print "/detail:    打包好的用户认证信息",values
 		print "->serveice使用打包好的信息修改用户信用Level"
 		countCreditWithCheck(username,None,values)
